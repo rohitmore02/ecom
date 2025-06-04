@@ -1,11 +1,21 @@
 const express = require('express');
-
+const cors = require('cors');
 const app = express();
-const PORT = 5000;
+const dotenv = require('dotenv');
+const mySqlPool = require('./config/db');
 
-app.route('/products')
-.get((req, res) => {
-    res.send("This is get products API");
-})
+dotenv.config();
+const PORT = 3000 || process.env.PORT;
 
-app.listen(PORT, () => console.log(`Server running on PORT: ${PORT}`));
+app.use(express.json());
+app.use(express.urlencoded({extends: true}));
+app.use(cors());
+
+app.use('/api/v1/products', require('./routes/products'));
+
+mySqlPool.query('SELECT 1').then(() => {
+    console.log('Database connected successfully...!');
+    app.listen(PORT, () => console.log(`Server running on PORT: ${PORT}`));
+}).catch((error) => {
+    console.log(error);
+});
